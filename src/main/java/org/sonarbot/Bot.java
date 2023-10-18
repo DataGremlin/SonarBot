@@ -189,10 +189,10 @@ public class Bot extends TelegramLongPollingBot {
         SendMessage sm = SendMessage.builder().chatId(who.toString()).text(what).build();
 
      try {
-        execute(sm);                        //Actually sending the message
+        execute(sm);                        
     } catch (
     TelegramApiException e) {
-        throw new RuntimeException(e);      //Any error will be printed here
+        throw new RuntimeException(e);      
     }
 
 
@@ -443,7 +443,7 @@ public class Bot extends TelegramLongPollingBot {
 
         try {
 
-            // convert JSON file to map
+           
 
             TypeReference<HashMap<Long,List<String>>> typeRef
                     = new TypeReference<HashMap<Long,List<String>>>() {};
