@@ -92,33 +92,26 @@ public class Bot extends TelegramLongPollingBot {
 
 
         String mesag = msg.getText().toUpperCase();
-        //if(msg.isCommand()){
+        
             if(mesag.contains("INFO") || mesag.contains("HELP")){
-               // info = true;
                 infoDump(id);
             }else if(mesag.contains("DROP NOTIFIER") || msg.getText().equals("/drop_notifier")) {
                 stopNotifyMe(id);
                 sendText(id, "Du wirst nicht mehr durch den Notifier benachrichtigt" );
             }else if(mesag.contains("NOTIFY")){
                 sendMenu(id, "Über welche Art von Studie möchtest du benachrichtigt werden?", keyboardM1);
-               // notifyMe(id, );
-
             }
             else if(mesag.contains("HALLO")){
                 sendText(id, "Hallo, ich bin ein Bot. Ich kann dir Infos über Studien des MCM bereitsstellen.\nSchreibe /help für eine Bedienungshilfe.");
-
             }
             else if(mesag.contains("ALL")){
 
                 getAll(id);
-
                 sendText(id, c.table);
             }else {
 
                 getAll(id);
-
                String s = c.t.parseInfo(msg.getText());
-
                 sendText(id,s );
 
             }
