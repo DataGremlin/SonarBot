@@ -1,0 +1,7 @@
+{
+	"loginbody":"__LASTFOCUS=&__VIEWSTATE=%2FwEPDwULLTE2ODM2Mzc5MzJkZFnjj8AhU98hkoS5I7UGEDa071CPnIWGPn%2Bkt2EJygnO&__VIEWSTATEGENERATOR=CA0B0334&__EVENTTARGET=&__EVENTARGUMENT=&__EVENTVALIDATION=%2FwEdAAZWsvCoD5hfLrOOxdoaJgx3UIlPJ3shF6ZfHx5cHAdswV%2FFKIbOHcdhWXmQSg51JR59RrGuEKfSBTDWck9ZvzkZThj6CryUsV5edO%2Fj1slC3ZNCGkWvNYEshf7dhO594iVtc%2B0p%2FqnLoh8hR2hNipnT3nCnfvNz0KOqS8hGAIBhpQ%3D%3D&ctl00%24ContentPlaceHolder1%24return_experiment_id=&ctl00%24ContentPlaceHolder1%24return_signup_id=&ctl00%24ContentPlaceHolder1%24userid=<insert SONA username>&ctl00%24ContentPlaceHolder1%24pw=<insert SONA password>&ctl00%24ContentPlaceHolder1%24default_auth_button=Login",
+	"httppost_req":"https://psywue.sona-systems.com/Default.aspx?ReturnUrl=/Main.aspx?p_log=<insert SONA username>&p_log=<insert SONA username>",
+	"bot_token":"<insert bot token>",
+	"bot_username":"<insert bot username>",
+	"bot_parent_userID":<insert your userID>
+}
