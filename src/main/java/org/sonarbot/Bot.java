@@ -298,7 +298,7 @@ public class Bot extends TelegramLongPollingBot {
                         if (s.contains("Keine passende Studie gefunden")) {
 
                         } else {
-                            c.updates.put(str, s);
+                            c.updates.put(str.toUpperCase(), s);
 
 
                         }
