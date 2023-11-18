@@ -38,7 +38,7 @@ public class TableFetcher {
             CloseableHttpClient c = builder.build();
 
 
-            CloseableHttpResponse last = c.execute(new HttpGet("http://localhost:8123/testhtml.html"));
+            CloseableHttpResponse last = c.execute(new HttpGet(Configuration.loadConfig().getGet_req()));
 
             String s = new String(last.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8);
 
@@ -54,49 +54,55 @@ public class TableFetcher {
 
 
     public void tableFromHtml() {
-        CookieStore co = new BasicCookieStore();
-        HttpClientBuilder builder = HttpClientBuilder.create().setDefaultCookieStore(co).setDefaultRequestConfig(RequestConfig.custom().setConnectTimeout(3000).setConnectionRequestTimeout(3000).setSocketTimeout(3000).build());
 
+        if(Configuration.loadConfig().getTestb()){
 
-        CloseableHttpClient c = builder.build();
-
-        CloseableHttpResponse http = null;
-
-        try {
-            http = c.execute(new HttpGet("https://psywue.sona-systems.com/Default.aspx?ReturnUrl=%2fall_exp_participant.aspx"));
-
-            http.close();
-
-
-            HttpPost h = new HttpPost(Configuration.loadConfig().getHttppost_req());
-
-
-            h.setEntity(new StringEntity(Configuration.loadConfig().getLoginbody(), ContentType.create("application/x-www-form-urlencoded")));
-            CloseableHttpResponse close = c.execute(h);
-            System.out.println(close.getStatusLine().toString());
-            close.close();
+            localTestTableFromHtml();
 
 
 
-
-            CloseableHttpResponse last = c.execute(new HttpGet("https://psywue.sona-systems.com/all_exp_participant.aspx"));
-
-            System.out.println(last.getStatusLine().toString());
-
-            String s = new String(last.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8);
-
-            rawHtml = s;
-            elements = Jsoup.parse(rawHtml).body().getElementsByAttributeValue("class", "table table-bordered table-striped").first().children().get(1).children();
+        }else {
+            CookieStore co = new BasicCookieStore();
+            HttpClientBuilder builder = HttpClientBuilder.create().setDefaultCookieStore(co).setDefaultRequestConfig(RequestConfig.custom().setConnectTimeout(3000).setConnectionRequestTimeout(3000).setSocketTimeout(3000).build());
 
 
-        } catch (Exception e) {
-            System.out.println(e);
+            CloseableHttpClient c = builder.build();
+
+            CloseableHttpResponse http = null;
+
+            try {
+                http = c.execute(new HttpGet("https://psywue.sona-systems.com/Default.aspx?ReturnUrl=%2fall_exp_participant.aspx"));
+
+                http.close();
+
+
+                HttpPost h = new HttpPost(Configuration.loadConfig().getHttppost_req());
+
+
+                h.setEntity(new StringEntity(Configuration.loadConfig().getLoginbody(), ContentType.create("application/x-www-form-urlencoded")));
+                CloseableHttpResponse close = c.execute(h);
+                System.out.println(close.getStatusLine().toString());
+                close.close();
+
+
+                CloseableHttpResponse last = c.execute(new HttpGet(Configuration.loadConfig().getGet_req()));
+
+                System.out.println(last.getStatusLine().toString());
+
+                String s = new String(last.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8);
+
+                rawHtml = s;
+                elements = Jsoup.parse(rawHtml).body().getElementsByAttributeValue("class", "table table-bordered table-striped").first().children().get(1).children();
+
+
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+
+
+            //System.out.println(co.getCookies());
+
         }
-
-
-        //System.out.println(co.getCookies());
-
-
     }
 
     public String parseAll() {
@@ -112,7 +118,7 @@ public class TableFetcher {
         return table;
     }
 
-    public String formatKuerzel(String info) {
+    public static String formatKuerzel(String info) {
 
         String text;
         if (info.equals("PsyErgo") || info.equals("/PsyErgo") || info.equals("PSYERGO") || info.equals("psyergo")) {

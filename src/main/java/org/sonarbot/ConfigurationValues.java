@@ -19,6 +19,12 @@ public class ConfigurationValues {
     @JsonProperty("bot_parent_userID")
     Long bot_parent;
 
+    @JsonProperty("urlget_req")
+    String get_req;
+
+    @JsonProperty("boolean_test")
+    Boolean testb;
+
     public Long getBot_parent() {
         return bot_parent;
     }
@@ -37,5 +43,12 @@ public class ConfigurationValues {
 
     public String getHttppost_req() {
         return httppost_req;
+    }
+
+    public String getGet_req(){
+        return get_req;
+    }
+    public Boolean getTestb(){
+        return testb;
     }
 }

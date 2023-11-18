@@ -2,6 +2,7 @@ package org.sonarbot;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.NoHttpResponseException;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -301,13 +302,18 @@ public class Bot extends TelegramLongPollingBot {
                             c.updates.put(str.toUpperCase(), s);
 
 
+
                         }
 
                     }
                     b.notificationList.keySet().stream().forEach(k -> b.notificationList.get(k).stream().forEach(i -> { if(c.update(i).isEmpty()){
 
                     }else {
-                        b.sendText(k, c.update(i));}
+
+                        b.sendText(k, c.update(i));
+
+
+                    }
                     }));
 
                     c.notifierCache =   c.t.elements.clone();
@@ -322,93 +328,7 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-    public void localtestpollThisWebsite(Cache c){
-        String[] kuerzel= { "PIIS", "MWK", "MI", "HCI", "KPNM", "MP", "PsyErgo"};
 
-
-        ScheduledExecutorService executorService = Executors
-                .newSingleThreadScheduledExecutor();
-
-        Bot b = this;
-        try {
-            executorService.scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run() {
-
-                    System.out.println(LocalDateTime.now().toString() + "checking the notifications");
-
-                    c.t.localTestTableFromHtml();
-                    c.table = c.t.parseAll();
-                    c.timestamp = new Date().getTime();
-
-
-
-
-
-                    if (c.firstNote) {
-                        c.notifierCache = c.t.elements.clone();
-                        c.firstNote = false;
-                    }
-
-
-                    ArrayList<String> studien = new ArrayList<>();
-                    ArrayList<String> neueStudien = new ArrayList<>();
-                    for (int i = 0; i < c.notifierCache.size(); i++) {
-                        studien.add(c.notifierCache.get(i).children().get(1).text());
-
-
-                    }
-                    for (int i = 0; i < c.t.elements.size(); i++) {
-                        neueStudien.add(c.t.elements.get(i).children().get(1).text());
-
-
-                    }
-
-
-                    for (int i = 0; i < studien.size(); i++) {
-                        if (neueStudien.contains(studien.get(i))) {
-                            neueStudien.remove(studien.get(i));
-                        }
-
-                    }
-                  //  logger.info(studien.toString());
-                  //  logger.info(neueStudien.toString());
-
-
-                    c.updates.clear();
-
-
-                    for (String str : kuerzel
-                    ) {
-                        String s = c.t.parseInfo(str, neueStudien);
-
-                        if (s.contains("Keine passende Studie gefunden")) {
-
-                        } else {
-                            c.updates.put(str, s);
-
-
-                        }
-
-                    }
-                    b.notificationList.keySet().stream().forEach(k -> b.notificationList.get(k).stream().forEach(i -> { if(c.update(i).isEmpty()){
-
-                    }else {
-                        b.sendText(k, c.update(i));}
-                    }));
-
-                    c.notifierCache =   c.t.elements.clone();
-                    logger.info(c.notifierCache.toString() + "Next:" + c.updates.toString());
-
-                    System.out.println(LocalDateTime.now() +"finish notification");
-
-                }
-            }, 1, 3, TimeUnit.MINUTES);
-        }catch (Exception e){
-            System.out.println( "Polling issue " + e);
-        }
-
-    }
 
     public void logToJson(){
         ObjectMapper objectMapper = new ObjectMapper();
