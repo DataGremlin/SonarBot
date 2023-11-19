@@ -2,7 +2,6 @@ package org.sonarbot;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.NoHttpResponseException;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -257,21 +256,22 @@ public class Bot extends TelegramLongPollingBot {
                     c.timestamp = new Date().getTime();
 
 
-
-
+                    c.readStudienCache();
+                    /*
                     if (c.firstNote) {
                         c.notifierCache = c.t.elements.clone();
                         c.firstNote = false;
-                    }
+                    }*/
 
 
-                    ArrayList<String> studien = new ArrayList<>();
+                    //ArrayList<String> studien = new ArrayList<>();
                     ArrayList<String> neueStudien = new ArrayList<>();
-                    for (int i = 0; i < c.notifierCache.size(); i++) {
+                   /*for (int i = 0; i < c.notifierCache.size(); i++) {
                         studien.add(c.notifierCache.get(i).children().get(1).text());
 
 
-                    }
+                    }*/
+
                     for (int i = 0; i < c.t.elements.size(); i++) {
                         neueStudien.add(c.t.elements.get(i).children().get(1).text());
 
@@ -279,9 +279,9 @@ public class Bot extends TelegramLongPollingBot {
                     }
 
 
-                    for (int i = 0; i < studien.size(); i++) {
-                        if (neueStudien.contains(studien.get(i))) {
-                            neueStudien.remove(studien.get(i));
+                    for (int i = 0; i < c.studienCache.size(); i++) {
+                        if (neueStudien.contains(c.studienCache.get(i))) {
+                            neueStudien.remove(c.studienCache.get(i));
                         }
 
                     }
@@ -306,17 +306,19 @@ public class Bot extends TelegramLongPollingBot {
                         }
 
                     }
-                    b.notificationList.keySet().stream().forEach(k -> b.notificationList.get(k).stream().forEach(i -> { if(c.update(i).isEmpty()){
+                    b.notificationList.keySet().stream().forEach(k -> b.notificationList.get(k).stream().forEach(i -> { if(c.getUpdateForKuerzel(i).isEmpty()){
 
                     }else {
 
-                        b.sendText(k, c.update(i));
+                        b.sendText(k, c.getUpdateForKuerzel(i));
 
 
                     }
                     }));
-
-                    c.notifierCache =   c.t.elements.clone();
+                    System.out.println("before writing stuff to Studiencache");
+                    c.writeNewStudienCache(c.getCurrentStudienElementsToList());
+                    System.out.println("after writing stuff to Studiencache");
+                    // c.notifierCache =   c.t.elements.clone();
                     logger.info(c.updates.toString());
 
                     System.out.println(LocalDateTime.now() +"finish notification");
