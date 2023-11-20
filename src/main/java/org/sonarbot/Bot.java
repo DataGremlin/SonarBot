@@ -77,7 +77,7 @@ public class Bot extends TelegramLongPollingBot {
                 sendText(id, inf);
             }
 
-        }else {
+        }else if(update.hasMessage()) {
             Message msg = update.getMessage();
             User user = update.getMessage().getFrom();
              id = user.getId();
@@ -95,7 +95,10 @@ public class Bot extends TelegramLongPollingBot {
         
             if(mesag.contains("INFO") || mesag.contains("HELP")){
                 infoDump(id);
-            }else if(mesag.contains("DROP NOTIFIER") || msg.getText().equals("/drop_notifier")) {
+            }else if(mesag.equals("/START")){
+
+            }
+            else if(mesag.contains("DROP NOTIFIER") || msg.getText().equals("/drop_notifier")) {
                 stopNotifyMe(id);
                 sendText(id, "Du wirst nicht mehr durch den Notifier benachrichtigt" );
             }else if(mesag.contains("NOTIFY")){
@@ -185,7 +188,7 @@ public class Bot extends TelegramLongPollingBot {
         execute(sm);                        
     } catch (
     TelegramApiException e) {
-        throw new RuntimeException(e);      
+         System.out.println(e + "issues ocurred with user:" + who);
     }
 
 
