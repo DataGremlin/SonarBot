@@ -25,6 +25,9 @@ public class ConfigurationValues {
     @JsonProperty("boolean_test")
     Boolean testb;
 
+    @JsonProperty("initial_get")
+    String initialGetReq;
+
     public Long getBot_parent() {
         return bot_parent;
     }
@@ -50,5 +53,8 @@ public class ConfigurationValues {
     }
     public Boolean getTestb(){
         return testb;
+    }
+    public String getInitialGetReq(){
+        return initialGetReq;
     }
 }

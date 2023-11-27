@@ -1,6 +1,7 @@
 package org.sonarbot;
 
 
+import org.apache.http.HttpException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -18,6 +19,8 @@ import org.jsoup.select.Elements;
 import java.nio.charset.StandardCharsets;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TableFetcher {
 
@@ -71,9 +74,9 @@ public class TableFetcher {
             CloseableHttpResponse http = null;
 
             try {
-                http = c.execute(new HttpGet("https://psywue.sona-systems.com/Default.aspx?ReturnUrl=%2fall_exp_participant.aspx"));
+              http = c.execute(new HttpGet(Configuration.loadConfig().getInitialGetReq()));
 
-                http.close();
+               http.close();
 
 
                 HttpPost h = new HttpPost(Configuration.loadConfig().getHttppost_req());
@@ -95,9 +98,13 @@ public class TableFetcher {
                 elements = Jsoup.parse(rawHtml).body().getElementsByAttributeValue("class", "table table-bordered table-striped").first().children().get(1).children();
 
 
+
             } catch (Exception e) {
                 System.out.println(e);
+
+
             }
+
 
 
             //System.out.println(co.getCookies());
@@ -110,14 +117,15 @@ public class TableFetcher {
     public String parseAll() {
 
 
-        String table = "";
-        for (int i = 0; i < elements.size(); i++) {
-            table = table.concat(elements.get(i).children().get(1).text() + "\n\n");
+            String table = "";
+            for (int i = 0; i < elements.size(); i++) {
+                table = table.concat(elements.get(i).children().get(1).text() + "\n\n");
 
-        }
+            }
 
 
-        return table;
+            return table;
+
     }
 
     public static String formatKuerzel(String info) {
@@ -139,7 +147,10 @@ public class TableFetcher {
         info = formatKuerzel(info);
         String res = "";
         for (int i = 0; i < studien.size(); i++) {
-            if (studien.get(i).contains(info)) {
+            Pattern pattern = Pattern.compile(info + "[\\s|-]");
+            Matcher matcher = pattern.matcher(elements.get(i).children().get(1).text());
+
+            if (  matcher.find()) {
                 res = res.concat(studien.get(i) + "\n\n");
             }
 
@@ -159,6 +170,41 @@ public class TableFetcher {
 
         String text = formatKuerzel(info);
 
+
+
+
+        if (info.length() == 1) {
+            return "Keine passende Studie gefunden" + "\n \n" + "/help";
+        }
+
+        for (int i = 0; i < elements.size(); i++) {
+            Pattern pattern = Pattern.compile(text + "[\\s|-]");
+            Matcher matcher = pattern.matcher(elements.get(i).children().get(1).text());
+
+            if (  matcher.find()) {
+                res = res.concat(elements.get(i).children().get(1).text() + "\n \n");
+            }
+            ;
+
+
+
+        }
+        if (res.isEmpty()) {
+            return "Keine passende Studie gefunden" + "\n \n" + "/help";
+
+        }
+        return res.stripTrailing();
+
+
+    }
+
+   /* public String parseInfo(String info) {
+
+        String res = "";
+
+        String text = formatKuerzel(info);
+        text.matches(info + "[\s|-]");
+
         if (info.length() == 1) {
             return "Keine passende Studie gefunden" + "\n \n" + "/help";
         }
@@ -177,5 +223,5 @@ public class TableFetcher {
         return res.stripTrailing();
 
 
-    }
+    }*/
 }

@@ -49,125 +49,92 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        try{
+        try {
 
 
-
-       long id;
-     //  logger.error("Hallo \n");
-       logger.info("logger ist hier \n");
-
+            long id;
+            //  logger.error("Hallo \n");
+            logger.info("logger ist hier \n");
 
 
+            if (update.hasCallbackQuery()) {
+
+                handleNotificationKeyboardChoice(update);
+            } else if (update.hasMessage()) {
+
+                Message msg = update.getMessage();
+                User user = update.getMessage().getFrom();
+                id = user.getId();
 
 
-        if(update.hasCallbackQuery()) {
+                String mesag = msg.getText().toUpperCase();
 
-            id = update.getCallbackQuery().getFrom().getId();
-            String data = update.getCallbackQuery().getData();
-            buttonTap(id, update.getCallbackQuery().getId(), data);
-            StringBuilder s = new StringBuilder();
-            notificationList.get(id).stream().forEach(v -> s.append( " " + v + ","));
-            s.deleteCharAt(s.length() - 1);
+                if (mesag.contains("INFO") || mesag.contains("HELP")) {
+                    infoDump(id);
+                } else if (mesag.equals("/START")) {
 
-            sendText(id, "Du wirst nun über den Notifier zu Studien der Art:" + s.toString() + " benachrichtigt" );
+                } else if (mesag.contains("DROP NOTIFIER") || msg.getText().equals("/drop_notifier")) {
+                    stopNotifyMe(id);
+                    sendText(id, "Du wirst nicht mehr durch den Notifier benachrichtigt");
+                } else if (mesag.contains("NOTIFY")) {
+                    sendMenu(id, "Über welche Art von Studie möchtest du benachrichtigt werden?", keyboardM1);
+                } else if (mesag.contains("HALLO")) {
+                    sendText(id, "Hallo, ich bin ein Bot. Ich kann dir Infos über Studien des MCM bereitsstellen.\nSchreibe /help für eine Bedienungshilfe.");
+                } else if (mesag.contains("ALL")) {
 
-            String inf = c.t.parseInfo(data.toUpperCase());
-            if(!inf.contains("Keine passende Studie gefunden")){
-                sendText(id, inf);
-            }
+                    getAll(id);
+                    sendText(id, c.table);
+                } else {
 
-        }else if(update.hasMessage()) {
-            Message msg = update.getMessage();
-            User user = update.getMessage().getFrom();
-             id = user.getId();
+                    getAll(id);
+                    String s = c.t.parseInfo(msg.getText());
+                    sendText(id, s);
 
+                }
 
-
-
-
-
-
-
-
-
-        String mesag = msg.getText().toUpperCase();
-        
-            if(mesag.contains("INFO") || mesag.contains("HELP")){
-                infoDump(id);
-            }else if(mesag.equals("/START")){
 
             }
-            else if(mesag.contains("DROP NOTIFIER") || msg.getText().equals("/drop_notifier")) {
-                stopNotifyMe(id);
-                sendText(id, "Du wirst nicht mehr durch den Notifier benachrichtigt" );
-            }else if(mesag.contains("NOTIFY")){
-                sendMenu(id, "Über welche Art von Studie möchtest du benachrichtigt werden?", keyboardM1);
+        } catch (Exception e) {
+            if(update.hasMessage()){
+            sendText(update.getMessage().getFrom().getId(),"SONA Server can't be reached right now");}
+            else {
+                sendText(update.getCallbackQuery().getFrom().getId(),"SONA Server can't be reached right now");
             }
-            else if(mesag.contains("HALLO")){
-                sendText(id, "Hallo, ich bin ein Bot. Ich kann dir Infos über Studien des MCM bereitsstellen.\nSchreibe /help für eine Bedienungshilfe.");
-            }
-            else if(mesag.contains("ALL")){
-
-                getAll(id);
-                sendText(id, c.table);
-            }else {
-
-                getAll(id);
-               String s = c.t.parseInfo(msg.getText());
-                sendText(id,s );
-
-            }
-
-
-        }
-        }catch(Exception e){
-
-            System.out.println(e);
         }
 
 
     }
 
 
+    private synchronized void getAll(Long id) {
+        Date d = new Date();
 
 
 
-
-    private synchronized void getAll(Long id){
-       Date d = new Date();
-
+            if (c.t.rawHtml == null || c.timestamp < d.getTime() - 5 * 60 * 1000) {
+                c.t.tableFromHtml();
 
 
-        if(c.t.rawHtml == null || c.timestamp < d.getTime() - 5 * 60 * 1000) {
-           c.t.tableFromHtml();
-
-           //c.t.localTestTableFromHtml();
+                c.timestamp = d.getTime();
+                c.table = c.t.parseAll();
 
 
-
-            c.timestamp = d.getTime();
-            c.table = c.t.parseAll();
+            }
 
 
-
-
-
-        }
 
     }
 
-    private void infoDump(Long id){
+    private void infoDump(Long id) {
         sendText(id, "Mit den folgenden Kürzeln kannst du nach Studien suchen:\n\nStudienkürzel MCM:\n\n /PIIS, /MWK, /MI, /HCI, /KPNM, /MP, /PsyErgo \n\n /all für alle verfügbaren Studien \n\n /notify um über verfügbare Studien benachrichtigt zu werden \n\n /drop_notifier um keine Notifications mehr zu bekommen");
 
 
     }
 
-    public void sendMenu(Long who, String txt, InlineKeyboardMarkup kb){
+    public void sendMenu(Long who, String txt, InlineKeyboardMarkup kb) {
         SendMessage sm = SendMessage.builder().chatId(who.toString())
                 .parseMode("HTML").text(txt)
                 .replyMarkup(kb).build();
-
 
 
         try {
@@ -178,69 +145,117 @@ public class Bot extends TelegramLongPollingBot {
     }
 
 
-
-
-
-    public void sendText(Long who, String what){
+    public void sendText(Long who, String what) {
         SendMessage sm = SendMessage.builder().chatId(who.toString()).text(what).build();
 
-     try {
-        execute(sm);                        
-    } catch (
-    TelegramApiException e) {
-         System.out.println(e + "issues ocurred with user:" + who);
+        try {
+            execute(sm);
+        } catch (
+                TelegramApiException e) {
+            System.out.println(e + "issues ocurred with user:" + who);
+        }
+
+
     }
-
-
-}
 
     private void buttonTap(Long id, String queryId, String data) {
 
 
-
         notifyMe(id, data);
-
 
 
         AnswerCallbackQuery close = AnswerCallbackQuery.builder()
                 .callbackQueryId(queryId).build();
         try {
             execute(close);
-        }catch (Exception e){}
-
-
-
-    }
-
-    public void notifyMe(long who, String str){
-        ArrayList<String> strs= new ArrayList<>();
-       str =  str.toUpperCase();
-        strs.add(str);
-
-       if( notificationList.containsKey(who)) {
-           if(notificationList.get(who).contains(str)){
-               return;
-           }else {
-           notificationList.get(who).add(str);}
-       }
-        notificationList.putIfAbsent(who, strs);
-
-       logToJson();
-
-
+        } catch (Exception e) {
+        }
 
 
     }
-    public void stopNotifyMe(long id){
 
-        notificationList.remove(id);
+    public void notifyMe(long who, String data) {
+        ArrayList<String> strs = new ArrayList<>();
+        data = data.toUpperCase();
+        strs.add(data);
+
+        if (notificationList.containsKey(who)) {
+
+            addOrRemoveExistingNotifier(who, data);
+
+        } else {
+
+            notificationList.putIfAbsent(who, strs);
+        }
         logToJson();
 
+        informAboutNotifier(who, data);
+
+
+    }
+
+    public void informAboutNotifier(long who, String data) {
+
+
+        if (notificationList.containsKey(who)) {
+            StringBuilder s = new StringBuilder();
+            notificationList.get(who).stream().forEach(v -> s.append(" " + v + ","));
+            s.deleteCharAt(s.length() - 1);
+
+            sendText(who, "Du wirst nun über den Notifier zu Studien der Art:" + s + " benachrichtigt");
+
+            String inf = c.t.parseInfo(data);
+            if (!inf.contains("Keine passende Studie gefunden") && notificationList.get(who).contains(data)) {
+                sendText(who, inf);
+            }
+        } else {
+            sendText(who, "Du wirst nun nicht mehr benachrichtigt.");
+        }
+
+
+    }
+
+    public void addOrRemoveExistingNotifier(long who, String data) {
+
+        if (notificationList.get(who).contains(data)) {
+            notificationList.get(who).remove(data);
+            System.out.println(notificationList.get(who));
+
+            if (notificationList.get(who).isEmpty()) {
+                System.out.println(notificationList.toString());
+                notificationList.remove(who);
+
+
+            }
+        } else {
+            notificationList.get(who).add(data);
+
+
+        }
+    }
+
+    public void stopNotifyMe(long id) {
+        if (notificationList.containsKey(id)) {
+            notificationList.remove(id);
+            logToJson();
+        }
+
+
+    }
+
+    public void handleNotificationKeyboardChoice(Update update) {
+
+        long id = update.getCallbackQuery().getFrom().getId();
+        String data = update.getCallbackQuery().getData();
+        buttonTap(id, update.getCallbackQuery().getId(), data);
+
+
     }
 
 
-    public void pollThisWebsite(Cache c){
-        String[] kuerzel= { "PIIS", "MWK", "MI", "HCI", "KPNM", "MP", "PsyErgo"};
+    public void pollThisWebsite(Cache c) {
+        getMapFromJson();
+        String[] kuerzel = {"PIIS", "MWK", "MI", "HCI", "KPNM", "MP", "PsyErgo"};
 
 
         ScheduledExecutorService executorService = Executors
@@ -288,7 +303,7 @@ public class Bot extends TelegramLongPollingBot {
                         }
 
                     }
-                 //   logger.info(studien.toString());
+                    //   logger.info(studien.toString());
                     //logger.info(neueStudien.toString());
 
 
@@ -305,18 +320,18 @@ public class Bot extends TelegramLongPollingBot {
                             c.updates.put(str.toUpperCase(), s);
 
 
-
                         }
 
                     }
-                    b.notificationList.keySet().stream().forEach(k -> b.notificationList.get(k).stream().forEach(i -> { if(c.getUpdateForKuerzel(i).isEmpty()){
+                    b.notificationList.keySet().stream().forEach(k -> b.notificationList.get(k).stream().forEach(i -> {
+                        if (c.getUpdateForKuerzel(i).isEmpty()) {
 
-                    }else {
+                        } else {
 
-                        b.sendText(k, c.getUpdateForKuerzel(i));
+                            b.sendText(k, c.getUpdateForKuerzel(i));
 
 
-                    }
+                        }
                     }));
                     System.out.println("before writing stuff to Studiencache");
                     c.writeNewStudienCache(c.getCurrentStudienElementsToList());
@@ -324,18 +339,17 @@ public class Bot extends TelegramLongPollingBot {
                     // c.notifierCache =   c.t.elements.clone();
                     logger.info(c.updates.toString());
 
-                    System.out.println(LocalDateTime.now() +"finish notification");
+                    System.out.println(LocalDateTime.now() + "finish notification");
 
                 }
             }, 1, 60, TimeUnit.MINUTES);
-        }catch (Exception e){
-            System.out.println( "Polling issue " + e);
+        } catch (Exception e) {
+            System.out.println("Polling issue " + e);
         }
     }
 
 
-
-    public void logToJson(){
+    public void logToJson() {
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
@@ -348,39 +362,35 @@ public class Bot extends TelegramLongPollingBot {
             myWriter.write(json);
             myWriter.close();
 
-        }catch (Exception e){
+        } catch (Exception e) {
 
             System.out.println(e);
         }
 
     }
 
-    public void getMapFromJson(){
+    public void getMapFromJson() {
 
         ObjectMapper mapper = new ObjectMapper();
 
         try {
 
-           
 
-            TypeReference<HashMap<Long,List<String>>> typeRef
-                    = new TypeReference<HashMap<Long,List<String>>>() {};
+            TypeReference<HashMap<Long, List<String>>> typeRef
+                    = new TypeReference<HashMap<Long, List<String>>>() {
+            };
 
             Map<Long, List<String>> map = mapper.readValue(Paths.get("notifier.json").toFile(), typeRef);
 
             notificationList.putAll(map);
 
 
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         }
 
 
     }
-
-
-
-
 
 
 }

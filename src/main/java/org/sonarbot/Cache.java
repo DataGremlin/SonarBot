@@ -33,12 +33,16 @@ public class Cache {
    public String table;
 
     public Cache(){
-        date = new Date();
-        timestamp = date.getTime();
-        t.tableFromHtml();
-       // t.localTestTableFromHtml();
-        table = t.parseAll();
-        readStudienCache();
+        try {
+            date = new Date();
+            timestamp = date.getTime();
+            t.tableFromHtml();
+            // t.localTestTableFromHtml();
+            table = t.parseAll();
+            readStudienCache();
+        }catch (Exception e){
+            System.out.println(e);
+        }
 
     }
 
