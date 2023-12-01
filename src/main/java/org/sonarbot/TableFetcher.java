@@ -147,7 +147,7 @@ public class TableFetcher {
         info = formatKuerzel(info);
         String res = "";
         for (int i = 0; i < studien.size(); i++) {
-            Pattern pattern = Pattern.compile("[\\s|-]" + info + "[\\s|-]");
+            Pattern pattern = Pattern.compile("^" + info + "|[\\s-/]" + info + "[\\s-/]");
             Matcher matcher = pattern.matcher(elements.get(i).children().get(1).text());
 
             if (  matcher.find()) {
@@ -178,7 +178,7 @@ public class TableFetcher {
         }
 
         for (int i = 0; i < elements.size(); i++) {
-            Pattern pattern = Pattern.compile("[\\s|-]" + info + "[\\s|-]");
+            Pattern pattern = Pattern.compile("^" + info + "|[\\s-/]" + info + "[\\s-/]");
             Matcher matcher = pattern.matcher(elements.get(i).children().get(1).text());
 
             if (  matcher.find()) {
