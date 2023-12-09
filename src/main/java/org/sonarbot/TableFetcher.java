@@ -148,7 +148,7 @@ public class TableFetcher {
         String res = "";
         for (int i = 0; i < studien.size(); i++) {
             Pattern pattern = Pattern.compile("^" + info + "|[\\s-/]" + info + "[\\s-/]");
-            Matcher matcher = pattern.matcher(elements.get(i).children().get(1).text());
+            Matcher matcher = pattern.matcher(studien.get(i));
 
             if (  matcher.find()) {
                 res = res.concat(studien.get(i) + "\n\n");
